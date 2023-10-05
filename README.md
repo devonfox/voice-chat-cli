@@ -28,5 +28,4 @@ To run the project after compilation:
 
 ```
 node dist/index.js
-
 ```

@@ -14,8 +14,7 @@ To install dependencies:
 
 ```
 npm init
-npm install readline-sync typescript --save-dev
-npm i --save-dev @types/readline-sync
+npm i
 ```
 
 Then to compile TypeScript project:

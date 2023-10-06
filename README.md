@@ -13,7 +13,6 @@ Current idea is to create a Node.js CLI app listens for audio within a certain t
 To install dependencies:
 
 ```
-npm init
 npm i
 ```
 

@@ -6,34 +6,36 @@ import {
   ChatCompletionMessageParam,
 } from "openai/resources/chat";
 
+dotenv.config();
+
 async function run() {
-  dotenv.config();
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
 
   let conversation: Array<ChatCompletionMessageParam> = [];
 
-  while (1) {
+  let done = false;
+
+  while (!done) {
     const prompt: string = readlineSync.question("\n$: ");
 
     if (prompt.toLowerCase() === "exit") {
       console.log("Conversation ended.");
-      break;
+      done = true;
+    } else {
+      conversation.push({ role: "user", content: prompt });
+
+      const chatCompletion: ChatCompletion =
+        await openai.chat.completions.create({
+          messages: conversation,
+          model: "gpt-3.5-turbo",
+        });
+
+      const response = chatCompletion.choices[0].message.content;
+      console.log(`\n#: ${response}`);
+      conversation.push({ role: "assistant", content: response });
     }
-
-    conversation.push({ role: "user", content: prompt });
-
-    const chatCompletion: ChatCompletion = await openai.chat.completions.create(
-      {
-        messages: conversation,
-        model: "gpt-3.5-turbo",
-      }
-    );
-
-    const response = chatCompletion.choices[0].message.content;
-    console.log(`\n#: ${response}`);
-    conversation.push({ role: "assistant", content: response });
   }
 }
 

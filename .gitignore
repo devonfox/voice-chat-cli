@@ -4,3 +4,8 @@
 
 # Environment Variables
 .env
+
+# Rando data
+*.wav
+speechtest.js
+test.js

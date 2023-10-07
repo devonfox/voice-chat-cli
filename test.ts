@@ -1,45 +1,32 @@
 import * as recorder from "node-record-lpcm16";
 import * as fs from "fs";
-import ffmpeg from "fluent-ffmpeg";
-import * as path from "path";
+import path from "path";
+import keypress from "keypress"; // Import the keypress library
 
 const wavPath: string = path.join(__dirname, "test.wav");
-const mp3Path: string = path.join(__dirname, "test.mp3");
 
 const file: fs.WriteStream = fs.createWriteStream(wavPath, {
   encoding: "binary",
 });
 
-recorder
+const recordStream = recorder
   .record({
     sampleRate: 44100,
   })
-  .stream()
-  .pipe(file);
+  .stream();
 
-async function convertToMP3(outputPath: string) {
-  return new Promise<void>((resolve, reject) => {
-    ffmpeg()
-      .input("test.wav")
-      .toFormat("mp3")
-      .on("end", () => {
-        console.log("Wav to Mp3 complete.");
-        resolve();
+const keyToStartRecording = "r";
+let isRecording = false;
 
-        fs.unlink(wavPath, (err) => {
-          if (err) {
-            console.error("Error deleting the file:", err);
-          } else {
-            console.log("Wave deleted successfully");
-          }
-        });
-      })
-      .on("error", (err) => {
-        console.error("Error converting to MP3:", err);
-        reject(err);
-      })
-      .save(outputPath);
-  });
-}
+keypress(process.stdin);
 
-convertToMP3(mp3Path);
+process.stdin.on("keypress", (ch, key) => {
+  if (key && key.name === keyToStartRecording && !isRecording) {
+    console.log("Recording started.");
+    isRecording = true;
+    recordStream.pipe(file);
+  }
+});
+
+process.stdin.setRawMode(true);
+process.stdin.resume();

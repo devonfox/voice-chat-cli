@@ -4,6 +4,3 @@
 
 # Environment Variables
 .env
-
-# Rando data
-*.wav

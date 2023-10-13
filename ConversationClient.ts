@@ -14,16 +14,19 @@ export class ConversationClient {
   private currentPrompt: string = "";
   private transcriber: TranscriberClient;
 
-  constructor(private apiKey: string) {
+  constructor(
+    private apiKey: string,
+    private audioPath?: string
+  ) {
     this.openai = new OpenAI({ apiKey });
     this.currentPrompt = "";
     this.transcriber = new TranscriberClient(
       apiKey,
-      path.join(__dirname, "prompt.wav")
+      audioPath ?? path.join(__dirname, "test.wav")
     );
   }
 
-  public async run() {
+  public async run(): Promise<void> {
     console.log("Conversation started.");
     while (!this.done) {
       this.currentPrompt = readlineSync.question(

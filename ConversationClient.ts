@@ -4,49 +4,48 @@ import {
   ChatCompletion,
   ChatCompletionMessageParam,
 } from "openai/resources/chat";
-import { Transcriber } from "./Transcriber";
+import { TranscriberClient } from "./TranscriberClient";
 import path from "path";
 
 export class ConversationClient {
   private openai: OpenAI;
   private conversation: Array<ChatCompletionMessageParam> = [];
   private done: boolean = false;
-  private firstRun: boolean = true;
   private currentPrompt: string = "";
-  private transcriber: Transcriber;
+  private transcriber: TranscriberClient;
 
   constructor(private apiKey: string) {
     this.openai = new OpenAI({ apiKey });
     this.currentPrompt = "";
-    this.transcriber = new Transcriber(
+    this.transcriber = new TranscriberClient(
       apiKey,
       path.join(__dirname, "prompt.wav")
     );
   }
 
   public async run() {
+    console.log("Conversation started.");
     while (!this.done) {
-      if (!this.firstRun) {
-        this.currentPrompt = readlineSync.question("\n$: ");
-      }
+      this.currentPrompt = readlineSync.question(
+        "\nPress enter to begin recording, or type 'exit' to end the conversation: "
+      );
+
       if (this.currentPrompt.trim() === "exit") {
         console.log("Conversation ended.");
         this.done = true;
         return;
       } else {
-        if (this.firstRun) {
-          await this.transcriber.recordAudio(8);
-          await this.transcriber
-            .transcribe()
-            .then(async (result) => {
-              this.currentPrompt = result;
-              console.log(`\n$: ${this.currentPrompt}`);
-            })
-            .catch((error) => {
-              console.error(error);
-            });
-          this.firstRun = false;
-        }
+        await this.transcriber.recordAudio(6);
+        await this.transcriber
+          .transcribe()
+          .then(async (result: string) => {
+            this.currentPrompt = result;
+            console.log(`\n$: ${this.currentPrompt}`);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+
         this.conversation.push({ role: "user", content: this.currentPrompt });
 
         const chatCompletion: ChatCompletion =

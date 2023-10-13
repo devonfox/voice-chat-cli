@@ -6,7 +6,7 @@ import FormData from "form-data";
 
 const wavPath: string = path.join(__dirname, "prompt.wav");
 
-export class Transcriber {
+export class TranscriberClient {
   private audioPath: string;
   private key: string;
 

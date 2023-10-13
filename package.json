@@ -9,12 +9,15 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/fluent-ffmpeg": "^2.1.22",
     "@types/readline-sync": "^1.4.5",
     "dotenv": "^16.3.1",
     "readline-sync": "^1.4.10",
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "keypress": "^0.2.1",
+    "node-record-lpcm16": "^1.0.1",
     "openai": "^4.11.1",
     "prettier": "^3.0.3"
   }

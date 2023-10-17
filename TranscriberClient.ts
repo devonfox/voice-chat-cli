@@ -39,10 +39,6 @@ export class TranscriberClient {
         if (response.ok) {
           const data = await response.json();
           resolve(data.text);
-        } else {
-          const errorText = await response.text();
-          console.error("Error:", errorText);
-          reject(`Error: ${response.status} - ${errorText}`);
         }
       } catch (error: any) {
         console.error("Error:", error.message);
@@ -50,8 +46,8 @@ export class TranscriberClient {
       }
     });
   };
-  public async recordAudio(duration: number) {
-    const file = fs.createWriteStream(this.audioPath ?? testPath, {
+  public record = async (duration: number) => {
+    const file = fs.createWriteStream(this.audioPath, {
       encoding: "binary",
     });
 
@@ -64,5 +60,5 @@ export class TranscriberClient {
     await new Promise((resolve: any) => setTimeout(resolve, duration * 1000));
     await recording.stop();
     file.close();
-  }
+  };
 }

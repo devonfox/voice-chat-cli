@@ -38,7 +38,7 @@ export class ConversationClient {
         this.done = true;
         return;
       } else {
-        await this.transcriber.recordAudio(6);
+        await this.transcriber.record(6);
         await this.transcriber
           .transcribe()
           .then(async (result: string) => {

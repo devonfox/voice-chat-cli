@@ -10,11 +10,19 @@ export class TranscriberClient {
   private audioPath: string;
   private key: string;
   private model: string; // OpenAI transcription model
+  private file: fs.WriteStream;
+  private recorder: any;
+
+  // look into better options
 
   constructor(key: string, audioPath?: string) {
     this.audioPath = audioPath ?? testPath;
     this.key = key;
     this.model = "whisper-1";
+    this.file = fs.createWriteStream(this.audioPath, {
+      encoding: "binary",
+    });
+    this.recorder = recorder.record({ channels: 1 });
   }
 
   public transcribe = async (): Promise<string> => {
@@ -46,19 +54,12 @@ export class TranscriberClient {
       }
     });
   };
-  public record = async (duration: number) => {
-    const file = fs.createWriteStream(this.audioPath, {
-      encoding: "binary",
-    });
+  public startRecord = async () => {
+    this.recorder.stream().pipe(this.file);
+  };
 
-    // look into better options
-    const recording = recorder.record({ channels: 1 });
-
-    recording.stream().pipe(file);
-
-    // Look into removing this duration and replace with a recording threshold
-    await new Promise((resolve: any) => setTimeout(resolve, duration * 1000));
-    await recording.stop();
-    file.close();
+  public stopRecord = async () => {
+    this.recorder.stop();
+    this.file.close();
   };
 }

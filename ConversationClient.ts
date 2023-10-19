@@ -26,19 +26,19 @@ export class ConversationClient {
     );
   }
 
-  public async run(): Promise<void> {
+  public run = async (): Promise<void> => {
     console.log("Conversation started.");
     while (!this.done) {
-      this.currentPrompt = readlineSync.question(
-        "\nPress enter to begin recording, or type 'exit' to end the conversation: "
-      );
-
       if (this.currentPrompt.trim() === "exit") {
         console.log("Conversation ended.");
         this.done = true;
         return;
       } else {
-        await this.transcriber.record(6);
+        await this.transcriber.startRecord();
+        this.currentPrompt = readlineSync.question(
+          "\nPress enter to stop recording, or type 'exit' to end the conversation: "
+        );
+        // await this.transcriber.stopRecord();
         await this.transcriber
           .transcribe()
           .then(async (result: string) => {
@@ -48,6 +48,12 @@ export class ConversationClient {
           .catch((error) => {
             console.error(error);
           });
+
+        if (this.currentPrompt === "Exit.") {
+          console.log("Conversation ended.");
+          this.done = true;
+          return;
+        }
 
         this.conversation.push({ role: "user", content: this.currentPrompt });
 
@@ -62,5 +68,5 @@ export class ConversationClient {
         this.conversation.push({ role: "assistant", content: response });
       }
     }
-  }
+  };
 }

@@ -11,7 +11,7 @@ export class ConversationClient {
   private openai: OpenAI;
   private conversation: Array<ChatCompletionMessageParam> = [];
   private done: boolean = false;
-  private currentPrompt: string = "";
+  private currentPrompt: string;
   private transcriber: TranscriberClient;
 
   constructor(
@@ -20,6 +20,7 @@ export class ConversationClient {
   ) {
     this.openai = new OpenAI({ apiKey });
     this.currentPrompt = "";
+    this.done = false;
     this.transcriber = new TranscriberClient(
       apiKey,
       audioPath ?? path.join(__dirname, "test.wav")
@@ -35,10 +36,7 @@ export class ConversationClient {
         return;
       } else {
         await this.transcriber.startRecord();
-        this.currentPrompt = readlineSync.question(
-          "\nPress enter to stop recording, or type 'exit' to end the conversation: "
-        );
-        // await this.transcriber.stopRecord();
+        await this.transcriber.stopRecord();
         await this.transcriber
           .transcribe()
           .then(async (result: string) => {

@@ -22,7 +22,7 @@ export class TranscriberClient {
     this.file = fs.createWriteStream(this.audioPath, {
       encoding: "binary",
     });
-    this.recorder = recorder.record({ channels: 1 });
+    this.recorder = recorder.record({ channels: 1});
   }
 
   public transcribe = async (): Promise<string> => {
@@ -55,11 +55,17 @@ export class TranscriberClient {
     });
   };
   public startRecord = async () => {
-    this.recorder.stream().pipe(this.file);
-  };
+    this.recorder
+      .stream()
+      .on("error", (err: any) => {
+        console.error("recorder threw an error:", err);
+      })
+      .pipe(this.file);
+};
 
-  public stopRecord = async () => {
-    this.recorder.stop();
-    this.file.close();
-  };
+public stopRecord = async () => {
+    if (this.recorder) {
+        await this.recorder.stop();   }
+};
+
 }

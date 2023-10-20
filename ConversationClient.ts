@@ -9,8 +9,8 @@ import path from "path";
 
 export class ConversationClient {
   private openai: OpenAI;
-  private conversation: Array<ChatCompletionMessageParam> = [];
-  private done: boolean = false;
+  private conversation: Array<ChatCompletionMessageParam>;
+  private done: boolean;
   private currentPrompt: string;
   private transcriber: TranscriberClient;
 
@@ -19,6 +19,7 @@ export class ConversationClient {
     private audioPath?: string
   ) {
     this.openai = new OpenAI({ apiKey });
+    this.conversation = [];
     this.currentPrompt = "";
     this.done = false;
     this.transcriber = new TranscriberClient(
@@ -33,24 +34,15 @@ export class ConversationClient {
       if (this.currentPrompt.trim() === "exit") {
         console.log("Conversation ended.");
         this.done = true;
-        return;
       } else {
-        await this.transcriber.startRecord();
-        await this.transcriber.stopRecord();
-        await this.transcriber
-          .transcribe()
-          .then(async (result: string) => {
-            this.currentPrompt = result;
-            console.log(`\n$: ${this.currentPrompt}`);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-
-        if (this.currentPrompt === "Exit.") {
-          console.log("Conversation ended.");
-          this.done = true;
-          return;
+        await this.transcriber.record();
+        await this.transcriber.closeFile();
+        try {
+          const result = await this.transcriber.transcribe();
+          this.currentPrompt = "result";
+          console.log(`\n$: ${this.currentPrompt}`);
+        } catch (error) {
+          console.error(error);
         }
 
         this.conversation.push({ role: "user", content: this.currentPrompt });

@@ -16,7 +16,6 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "keypress": "^0.2.1",
     "node-record-lpcm16": "^1.0.1",
     "openai": "^4.11.1",
     "prettier": "^3.0.3"

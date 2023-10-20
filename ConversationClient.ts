@@ -1,4 +1,3 @@
-import * as readlineSync from "readline-sync";
 import OpenAI from "openai";
 import {
   ChatCompletion,
@@ -28,35 +27,40 @@ export class ConversationClient {
     );
   }
 
-  public run = async (): Promise<void> => {
+  public run = async () => {
     console.log("Conversation started.");
     while (!this.done) {
-      if (this.currentPrompt.trim() === "exit") {
-        console.log("Conversation ended.");
-        this.done = true;
-      } else {
+      try {
         await this.transcriber.record();
-        await this.transcriber.closeFile();
-        try {
-          const result = await this.transcriber.transcribe();
-          this.currentPrompt = "result";
-          console.log(`\n$: ${this.currentPrompt}`);
-        } catch (error) {
-          console.error(error);
-        }
-
-        this.conversation.push({ role: "user", content: this.currentPrompt });
-
-        const chatCompletion: ChatCompletion =
-          await this.openai.chat.completions.create({
-            messages: this.conversation,
-            model: "gpt-3.5-turbo",
-          });
-
-        const response = chatCompletion.choices[0].message.content;
-        console.log(`\n#: ${response}`);
-        this.conversation.push({ role: "assistant", content: response });
+      } catch (error) {
+        console.error(error);
       }
+
+      try {
+        const result = await this.transcriber.transcribe();
+        this.currentPrompt = result;
+
+        if (this.currentPrompt.includes("Goodbye")) {
+          this.done = true;
+          console.log("Conversation ended.");
+          return;
+        }
+        console.log(`\n$: ${this.currentPrompt}`);
+      } catch (error) {
+        console.error(error);
+      }
+
+      this.conversation.push({ role: "user", content: this.currentPrompt });
+
+      const chatCompletion: ChatCompletion =
+        await this.openai.chat.completions.create({
+          messages: this.conversation,
+          model: "gpt-3.5-turbo",
+        });
+
+      const response = chatCompletion.choices[0].message.content;
+      console.log(`\n#: ${response}`);
+      this.conversation.push({ role: "assistant", content: response });
     }
   };
 }

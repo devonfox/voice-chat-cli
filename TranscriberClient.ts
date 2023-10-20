@@ -10,25 +10,11 @@ export class TranscriberClient {
   private audioPath: string;
   private key: string;
   private model: string; // OpenAI transcription model
-  private file: fs.WriteStream;
-  private recorder: any;
-
-  // look into better options
 
   constructor(key: string, audioPath?: string) {
     this.audioPath = audioPath ?? testPath;
     this.key = key;
     this.model = "whisper-1";
-    this.file = fs.createWriteStream(this.audioPath, {
-      encoding: "binary",
-    });
-    this.recorder = recorder.record({
-      sampleRate: 16000,
-      channels: 1,
-      endOnSilence: true,
-      silence: "3.0",
-      recorder: "rec",
-    });
   }
 
   public transcribe = async (): Promise<string> => {
@@ -53,6 +39,14 @@ export class TranscriberClient {
         if (response.ok) {
           const data = await response.json();
           resolve(data.text);
+        } else {
+          console.error(
+            "Transcription request failed with status code:",
+            response.status
+          );
+          reject(
+            `Transcription request failed with status code: ${response.status}`
+          );
         }
       } catch (error: any) {
         console.error("Error:", error.message);
@@ -60,19 +54,32 @@ export class TranscriberClient {
       }
     });
   };
-  public record = async () => {
-    this.recorder
-      .stream()
-      .on("data", (data: any) => {
-        console.log(data);
-      })
-      .on("error", (err: any) => {
-        console.error("recorder threw an error:", err);
-      })
-      .pipe(this.file);
-  };
 
-  public closeFile = async () => {
-    this.file.close();
+  public record = async () => {
+    return new Promise<void>((resolve, reject) => {
+      const file = fs.createWriteStream(this.audioPath, {
+        encoding: "binary",
+      });
+      const recording = recorder.record({
+        sampleRate: 16000,
+        channels: 1,
+        endOnSilence: true,
+        silence: "2.0",
+        recorder: "rec",
+      });
+      recording
+        .stream()
+        .on("start", () => {
+          console.log("Listening... (Say goodbye to stop)");
+        })
+        .on("end", () => {
+          resolve();
+        })
+        .on("error", (err: any) => {
+          console.error("recorder threw an error:", err);
+          reject(err);
+        })
+        .pipe(file);
+    });
   };
 }

@@ -69,9 +69,6 @@ export class TranscriberClient {
       });
       recording
         .stream()
-        .on("start", () => {
-          console.log("Listening... (Say goodbye to stop)");
-        })
         .on("end", () => {
           resolve();
         })

@@ -4,7 +4,6 @@ import {
   ChatCompletionMessageParam,
 } from "openai/resources/chat";
 import { TranscriberClient } from "./TranscriberClient";
-import path from "path";
 
 export class ConversationClient {
   private openai: OpenAI;
@@ -21,10 +20,7 @@ export class ConversationClient {
     this.conversation = [];
     this.currentPrompt = "";
     this.done = false;
-    this.transcriber = new TranscriberClient(
-      apiKey,
-      audioPath ?? path.join(__dirname, "test.wav")
-    );
+    this.transcriber = new TranscriberClient(apiKey, audioPath);
   }
 
   public run = async () => {

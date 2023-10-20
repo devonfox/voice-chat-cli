@@ -20,12 +20,8 @@ async function main() {
           fs.unlink(promptAudioPath, (err) => {
             if (err) {
               console.error(`Error deleting the file: ${err}`);
-            } else {
-              console.log("File deleted successfully");
             }
           });
-        } else {
-          console.log("File does not exist, so no need to delete.");
         }
       });
     } catch (error) {

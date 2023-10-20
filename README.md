@@ -25,6 +25,12 @@ Working version for Windows is 14.4.1. You can [download the binaries](https://s
 
 `choco install sox.portable`
 
+In order to use the [OpenAI API](https://openai.com/product), you will need to sign up and add credit to your account.  Then you will need to create a `.env` file in the project root containing your openAPI key like so.
+
+```
+OPENAI_API_KEY=<put_your_key_here>
+```
+
 
 Then to compile TypeScript project:
 
@@ -34,6 +40,8 @@ npx tsc
 
 To run the project after compilation:
 
-```s
+```
 node dist/index.js
 ```
+
+Once running, simply say, "Goodbye" to exit the program.

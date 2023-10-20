@@ -40,9 +40,13 @@ export class TranscriberClient {
           const data = await response.json();
           resolve(data.text);
         } else {
-          const errorText = await response.text();
-          console.error("Error:", errorText);
-          reject(`Error: ${response.status} - ${errorText}`);
+          console.error(
+            "Transcription request failed with status code:",
+            response.status
+          );
+          reject(
+            `Transcription request failed with status code: ${response.status}`
+          );
         }
       } catch (error: any) {
         console.error("Error:", error.message);
@@ -50,19 +54,29 @@ export class TranscriberClient {
       }
     });
   };
-  public async recordAudio(duration: number) {
-    const file = fs.createWriteStream(this.audioPath ?? testPath, {
-      encoding: "binary",
+
+  public record = async () => {
+    return new Promise<void>((resolve, reject) => {
+      const file = fs.createWriteStream(this.audioPath, {
+        encoding: "binary",
+      });
+      const recording = recorder.record({
+        sampleRate: 16000,
+        channels: 1,
+        endOnSilence: true,
+        silence: "2.0",
+        recorder: "rec",
+      });
+      recording
+        .stream()
+        .on("end", () => {
+          resolve();
+        })
+        .on("error", (err: any) => {
+          console.error("recorder threw an error:", err);
+          reject(err);
+        })
+        .pipe(file);
     });
-
-    // look into better options
-    const recording = recorder.record({ channels: 1 });
-
-    recording.stream().pipe(file);
-
-    // Look into removing this duration and replace with a recording threshold
-    await new Promise((resolve: any) => setTimeout(resolve, duration * 1000));
-    await recording.stop();
-    file.close();
-  }
+  };
 }

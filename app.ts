@@ -6,8 +6,8 @@ import path from "path";
 dotenv.config();
 
 async function main() {
-  const apiKey = process.env.OPENAI_API_KEY;
-  const promptAudioPath = path.join(__dirname, "prompt.wav");
+  const apiKey: string | undefined = process.env.OPENAI_API_KEY;
+  const promptAudioPath: string = path.join(__dirname, "prompt.wav");
 
   if (apiKey) {
     try {
@@ -17,9 +17,9 @@ async function main() {
       );
       await client.run().then(() => {
         if (fs.existsSync(promptAudioPath)) {
-          fs.unlink(promptAudioPath, (err) => {
-            if (err) {
-              console.error(`Error deleting the file: ${err}`);
+          fs.unlink(promptAudioPath, (error) => {
+            if (error) {
+              console.error(`Error deleting the file: ${error}`);
             }
           });
         }
